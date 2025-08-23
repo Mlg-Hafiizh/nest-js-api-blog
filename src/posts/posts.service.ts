@@ -15,9 +15,10 @@ export class PostsService {
 		private usersRepository: Repository<User>,
 	) {}
 
-	async create(
-		createPostDto: CreatePostDto,
-	): Promise<{ message: string; data: Post }> {
+	async create(createPostDto: CreatePostDto): Promise<{
+		message: string;
+		data: Post;
+	}> {
 		const { author, ...rest } = createPostDto as CreatePostDto;
 		const post = this.postsRepository.create({
 			...rest,
@@ -40,22 +41,18 @@ export class PostsService {
 		return await this.postsRepository.findOneBy({ id });
 	}
 
-	async update(
-		id: number,
-		updatePostDto: UpdatePostDto,
-	): Promise<{ message: string; data: Post }> {
+	async update(updatePostDto: UpdatePostDto): Promise<{
+		message: string;
+		data: Post;
+	}> {
 		const { author, ...rest } = updatePostDto;
 		const updateData: Partial<Post> = {
 			...rest,
-			author: author
-				? this.usersRepository.create({ id: Number(author) })
-				: undefined,
+			author: author ? ({ id: Number(author) } as User) : undefined,
 		};
-		await this.postsRepository.update(id, updateData);
-		const updatedPost = await this.postsRepository.findOneBy({ id });
-		if (!updatedPost) {
-			throw new Error('Post not found');
-		}
+
+		const updatedPost = await this.postsRepository.save(updateData);
+
 		return {
 			message: 'Post updated successfully',
 			data: updatedPost,

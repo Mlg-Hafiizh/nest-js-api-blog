@@ -46,5 +46,5 @@ export class User {
 
 	@UpdateDateColumn()
 	updatedAt: Date;
-	posts: any;
+	posts: unknown[];
 }

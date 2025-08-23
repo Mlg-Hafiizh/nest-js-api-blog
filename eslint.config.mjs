@@ -6,6 +6,7 @@ import prettier from 'eslint-plugin-prettier';
 
 export default defineConfig([
 	{
+		ignores: ['node_modules', 'dist', 'build', '*.config.js'],
 		files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
 		plugins: {
 			js,

@@ -6,21 +6,25 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from 'src/users/users.service';
 import { UserRole, UserStatus } from 'src/users/users.enum';
+import { LogsService } from 'src/logs/logs.service';
 
 @Injectable()
 export class AuthService {
 	private readonly jwtService: JwtService;
 	private readonly configService: ConfigService;
 	private readonly usersService: UsersService;
+	private readonly logsService: LogsService;
 
 	constructor(
 		jwtService: JwtService,
 		configService: ConfigService,
 		usersService: UsersService,
+		logsService: LogsService,
 	) {
 		this.jwtService = jwtService;
 		this.configService = configService;
 		this.usersService = usersService;
+		this.logsService = logsService;
 	}
 
 	async validateUser(
@@ -41,6 +45,7 @@ export class AuthService {
 	}
 
 	async login(user: User): Promise<{ accessToken: string }> {
+		await this.logsService.createLog('LOGIN', user.id, 'User logged in');
 		const payload = { email: user.email, sub: user.id };
 		const accessToken = this.jwtService.sign(payload);
 		return { accessToken };
@@ -81,5 +86,10 @@ export class AuthService {
 	async findByEmail(email: string): Promise<User | null> {
 		const user = await this.usersService.findByEmail(email);
 		return user ?? null;
+	}
+
+	async logout(userId: number) {
+		await this.logsService.createLog('LOGOUT', userId, 'User logged out');
+		return { message: 'Logged out successfully' };
 	}
 }
